@@ -1,0 +1,6 @@
+fields:
+  lines:
+    parser: lines
+    start: Item\s+Discount\s+Price$
+    end: \s+Total
+    line: (?P<description>.+)\s+(?P<discount>\d+.\d+)\s+(?P<price>\d+\d+)
