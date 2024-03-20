@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Operations</title>
+    <!-- Bootstrap CSS -->
+</head>
+<body  style="height: 100vh; background-color: #a7cdcc;">
+    <div class="container h-100">
+        <div class="row h-100  justify-content-center align-items-center">
+            <div class="col col-md-4">
+                <label for="" class="form-label mb-2">Total Loan Amount By Specific Time Period</label>
+                <button  class="btn btn-primary float-end" type="submit" onclick="total_loan_amount_by_time();">Report</button>
+                <input type="date" id="start-date" name="start-date">
+                <input type="date" id="end-date" name="end-date">
+                <br>
+                <label for="" class="form-label mb-2">Total Loan Amount</label>
+                <button  class="btn btn-primary float-end" type="submit" onclick="total_loan_amount();">Report</button>
+                <br>
+                <label for="" class="form-label mb-2">highest Loan Amount</label>
+                <label for="" class="form-label mb-2">Select a Broker</label>
+                <select name="broker" id="broker_name">
+                    {% for broker in brokers %}
+                      <option value="{{ broker }}">{{ broker }}</option>
+                    {% endfor %}
+                </select>
+                <button  class="btn btn-primary float-end" type="submit" onclick="highest_loan_amount();">Report</button>
+                <br>
+                <label for="" class="form-label mb-2">Broker Report</label>
+
+                <label for="" class="form-label mb-2">Select a Broker</label>
+                <select name="broker" id="broker_name_report">
+                    {% for broker in brokers %}
+                      <option value="{{ broker }}">{{ broker }}</option>
+                    {% endfor %}
+                  </select>
+                <button  class="btn btn-primary float-end" type="submit" onclick="broker_report();">Report</button>
+                <br>
+                <label for="" class="form-label mb-2">Total Loan Amount</label>
+                <button  class="btn btn-primary float-end" type="submit" onclick="report_total_load_amount();">Report</button>
+                <br>
+                <label for="" class="form-label mb-2">Number of Loans</label>
+                <button  class="btn btn-primary float-end" type="submit" onclick="report_number_of_loans();">Report</button>
+                <br>
+            </div>
+        </div>
+    </div>
+    <table id="data-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    <script>
+        function populateTable(data) {
+            var tableBody = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ""
+            var data_details = data.details
+            if (data_details.length < 1) {
+                return;
+            }
+            var data_details_headings = Object.keys(data_details[0]);
+
+            var row = tableBody.insertRow(0);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            cell1.innerHTML = data_details_headings[0];
+            cell2.innerHTML = data_details_headings[1];
+
+            console.log(data_details_headings)
+            for (var i = 1; i < data_details.length; i++) {
+                var row = tableBody.insertRow(i);
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                cell1.innerHTML = data_details[i][data_details_headings[0]];
+                cell2.innerHTML = data_details[i][data_details_headings[1]];
+            }
+            }
+        function report_total_load_amount() {
+            fetch('/operations/report_total_load_amount/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        populateTable(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+
+        function report_number_of_loans() {
+            fetch('/operations/report_number_of_loans/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        populateTable(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+    
+    
+        function highest_loan_amount() {
+            let broker_name = document.getElementById("broker_name").value;
+            if (!broker_name){
+                alert("Please select a broker name first");
+                return;
+            }
+            fetch('/operations/highest_loan_amount/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({"broker" : broker_name})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        populateTable(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+
+        function broker_report() {
+            let broker_name = document.getElementById("broker_name_report").value;
+            if (!broker_name){
+                alert("Please select a broker name first");
+                return;
+            }
+            fetch('/operations/broker_report/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({"broker" : broker_name})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        populateTable(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        function total_loan_amount_by_time() {
+            let start_date = document.getElementById("start-date").value;
+            if (!start_date){
+                alert("Please select a start date first");
+                return;
+            }
+            let end_date = document.getElementById("end-date").value;
+            if (!end_date){
+                alert("Please select a end date first");
+                return;
+            }
+
+            fetch('/operations/total_loan_amount_by_time/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({"start_date" : start_date, "end_date" : end_date})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        populateTable(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+    
+    </script>
+</body>
+</html>

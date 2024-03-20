@@ -1,0 +1,2 @@
+tabula-py==2.9.0
+Django==5.0.3
